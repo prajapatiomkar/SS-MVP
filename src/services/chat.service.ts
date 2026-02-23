@@ -1,14 +1,24 @@
+import { MessageRepository } from "../repositories/message.repository";
+
 export class ChatService {
-  joinRoom(socket: any, roomId: string) {
+  private messageRepo = new MessageRepository();
+
+  async joinRoom(socket: any, roomId: string) {
     socket.join(roomId);
     return { roomId };
   }
 
-  createMessage(roomId: string, message: string, sender: string) {
-    return {
+  async createMessage(roomId: string, message: string, sender: string) {
+    const savedMessage = await this.messageRepo.create({
       roomId,
       message,
       sender,
-    };
+    });
+
+    return savedMessage;
+  }
+
+  async getRoomHistory(roomId: string) {
+    return this.messageRepo.findByRoom(roomId);
   }
 }

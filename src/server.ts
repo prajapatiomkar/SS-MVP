@@ -9,8 +9,11 @@ import {
   SocketData,
 } from "./types/socket.types";
 import { socketAuthMiddleware } from "./middleware/socket-auth.middleware";
+import { connectDB } from "./config/db";
+
 const app = express();
 const httpServer = createServer(app);
+connectDB();
 
 const io = new Server<
   ClientToServerEvents,

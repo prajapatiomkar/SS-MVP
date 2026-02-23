@@ -12,18 +12,22 @@ export const chatHandler = (
   io: Server<ClientToServerEvents, ServerToClientEvents>,
   socket: Socket<ClientToServerEvents, ServerToClientEvents, {}, SocketData>,
 ) => {
-  socket.on("join_room", (roomId) => {
-    const result = chatService.joinRoom(socket, roomId);
+  socket.on("join_room", async (roomId) => {
+    const result = await chatService.joinRoom(socket, roomId);
     socket.emit("joined_room", result);
   });
 
-  socket.on("send_message", ({ roomId, message }) => {
-    const payload = chatService.createMessage(
-      roomId,
-      message,
-      socket.data.userId!, // ← now real identity
-    );
+  socket.on("send_message", async ({ roomId, message }) => {
+    try {
+      const payload = await chatService.createMessage(
+        roomId,
+        message,
+        socket.data.userId!,
+      );
 
-    io.to(roomId).emit("receive_message", payload);
+      io.to(roomId).emit("receive_message", payload);
+    } catch (error) {
+      console.error("Message error:", error);
+    }
   });
 };
