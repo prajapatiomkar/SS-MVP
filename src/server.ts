@@ -1,6 +1,7 @@
 import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import { initSocket } from "./socket";
 
 const app = express();
 const httpServer = createServer(app);
@@ -15,18 +16,8 @@ app.get("/health", (_, res) => {
   res.json({ status: "OK" });
 });
 
-io.on("connection", (socket) => {
-  console.log("Client connected:", socket.id);
-
-  socket.on("ping", (data) => {
-    console.log("Ping received:", data);
-    socket.emit("pong", { message: "Pong from server" });
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Client disconnected:", socket.id);
-  });
-});
+// initialize socket layer
+initSocket(io);
 
 const PORT = 3000;
 
