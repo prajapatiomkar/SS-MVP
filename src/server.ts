@@ -10,10 +10,18 @@ import {
 } from "./types/socket.types";
 import { socketAuthMiddleware } from "./middleware/socket-auth.middleware";
 import { connectDB } from "./config/db";
+import { setupRedisAdapter } from "./config/redis";
 
 const app = express();
 const httpServer = createServer(app);
-connectDB();
+const startServer = async () => {
+  await connectDB();
+  await setupRedisAdapter(io);
+  const PORT = 3000;
+  httpServer.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+};
 
 const io = new Server<
   ClientToServerEvents,
@@ -31,8 +39,4 @@ io.use(socketAuthMiddleware);
 // initialize socket layer
 initSocket(io);
 
-const PORT = 3000;
-
-httpServer.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+startServer();
