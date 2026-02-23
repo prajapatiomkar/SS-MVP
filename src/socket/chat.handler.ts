@@ -18,7 +18,11 @@ export const chatHandler = (
   });
 
   socket.on("send_message", ({ roomId, message }) => {
-    const payload = chatService.createMessage(roomId, message, socket.id);
+    const payload = chatService.createMessage(
+      roomId,
+      message,
+      socket.data.userId!, // ← now real identity
+    );
 
     io.to(roomId).emit("receive_message", payload);
   });

@@ -8,7 +8,7 @@ import {
   InterServerEvents,
   SocketData,
 } from "./types/socket.types";
-
+import { socketAuthMiddleware } from "./middleware/socket-auth.middleware";
 const app = express();
 const httpServer = createServer(app);
 
@@ -24,7 +24,7 @@ const io = new Server<
 app.get("/health", (_, res) => {
   res.json({ status: "OK" });
 });
-
+io.use(socketAuthMiddleware);
 // initialize socket layer
 initSocket(io);
 
