@@ -1,17 +1,25 @@
 import { Server, Socket } from "socket.io";
+import { ChatService } from "../services/chat.service";
+import {
+  ClientToServerEvents,
+  ServerToClientEvents,
+  SocketData,
+} from "../types/socket.types";
 
-export const chatHandler = (io: Server, socket: Socket) => {
-  socket.on("join_room", (roomId: string) => {
-    socket.join(roomId);
-    socket.emit("joined_room", { roomId });
-    console.log(`${socket.id} joined ${roomId}`);
+const chatService = new ChatService();
+
+export const chatHandler = (
+  io: Server<ClientToServerEvents, ServerToClientEvents>,
+  socket: Socket<ClientToServerEvents, ServerToClientEvents, {}, SocketData>,
+) => {
+  socket.on("join_room", (roomId) => {
+    const result = chatService.joinRoom(socket, roomId);
+    socket.emit("joined_room", result);
   });
 
   socket.on("send_message", ({ roomId, message }) => {
-    io.to(roomId).emit("receive_message", {
-      roomId,
-      message,
-      sender: socket.id,
-    });
+    const payload = chatService.createMessage(roomId, message, socket.id);
+
+    io.to(roomId).emit("receive_message", payload);
   });
 };

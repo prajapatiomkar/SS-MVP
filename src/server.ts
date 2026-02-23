@@ -2,14 +2,23 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { initSocket } from "./socket";
+import {
+  ServerToClientEvents,
+  ClientToServerEvents,
+  InterServerEvents,
+  SocketData,
+} from "./types/socket.types";
 
 const app = express();
 const httpServer = createServer(app);
 
-const io = new Server(httpServer, {
-  cors: {
-    origin: "*",
-  },
+const io = new Server<
+  ClientToServerEvents,
+  ServerToClientEvents,
+  InterServerEvents,
+  SocketData
+>(httpServer, {
+  cors: { origin: "*" },
 });
 
 app.get("/health", (_, res) => {
